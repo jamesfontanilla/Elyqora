@@ -34,3 +34,27 @@ export const ELYQORA_MODULES: ModuleDefinition[] = [
 ];
 
 export const getModuleBySlug = (slug: string) => ELYQORA_MODULES.find((module) => module.slug === slug);
+
+export const getEnabledModules = () => ELYQORA_MODULES.filter((module) => module.enabled);
+
+export const getNavigationModules = (navigation: ModuleDefinition["navigation"]) =>
+  ELYQORA_MODULES.filter((module) => module.navigation === navigation && module.enabled);
+
+export const getMobileNavigationModules = () => [
+  ...getNavigationModules("primary"),
+  ...getNavigationModules("settings"),
+];
+
+export function getModuleHref(module: ModuleDefinition) {
+  return module.slug === "settings" ? "/settings/profile" : `/${module.slug}`;
+}
+
+export function getHubEmptyState(moduleSlug: "tasks" | "calendar" | "projects", count = 0) {
+  if (count > 0) return null;
+  const copy = {
+    tasks: { title: "No assigned tasks", body: "The Tasks module is not configured yet." },
+    calendar: { title: "No upcoming events", body: "The Calendar module is not configured yet." },
+    projects: { title: "No active projects", body: "The Projects module is not configured yet." },
+  } as const;
+  return copy[moduleSlug];
+}

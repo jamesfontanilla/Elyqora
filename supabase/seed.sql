@@ -52,3 +52,33 @@ from public.roles r
 join public.permissions p on p.key in ('workspace.read', 'members.read', 'modules.read')
 where r.name = 'viewer'
 on conflict do nothing;
+
+insert into public.dashboard_preferences (workspace_id, user_id)
+select w.id, w.owner_id
+from public.workspaces w
+where w.deleted_at is null
+on conflict (workspace_id, user_id) do nothing;
+
+insert into public.pinned_modules (workspace_id, user_id, module_slug, position)
+select w.id, w.owner_id, pinned.module_slug, pinned.position
+from public.workspaces w
+cross join (values ('hub', 0), ('settings', 1)) as pinned(module_slug, position)
+where w.deleted_at is null
+on conflict (workspace_id, user_id, module_slug) do nothing;
+
+insert into public.recent_items (workspace_id, user_id, entity_type, entity_id, label, href, icon)
+select w.id, w.owner_id, 'workspace', w.id, w.name, '/settings/workspace', '⚙'
+from public.workspaces w
+where w.deleted_at is null
+on conflict (workspace_id, user_id, entity_type, entity_id) do nothing;
+
+insert into public.notifications (workspace_id, user_id, title, body, kind, href)
+select w.id, w.owner_id, 'Workspace ready', 'Your Elyqora Hub is ready for its first pieces of work.', 'success', '/hub'
+from public.workspaces w
+where w.deleted_at is null
+  and not exists (
+    select 1 from public.notifications n
+    where n.workspace_id = w.id
+      and n.user_id = w.owner_id
+      and n.title = 'Workspace ready'
+  );

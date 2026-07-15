@@ -14,6 +14,7 @@ import { getInitials, formatDate } from "@/lib/utils";
 import type { Membership, Profile, Workspace } from "@/lib/types";
 import type { ActionState } from "@/lib/actions/types";
 import { WorkspaceSwitcher } from "@/components/workspaces/workspace-switcher";
+import { getModuleHref, getNavigationModules } from "@/lib/modules/registry";
 
 export function OnboardingForm() {
   const [state, action] = useActionState<ActionState, FormData>(createWorkspaceAction, {});
@@ -57,7 +58,8 @@ export function AcceptInvitationForm({ token }: { token: string }) {
 }
 
 export function MobileMenu({ workspaces, currentWorkspace, profile }: { workspaces: Workspace[]; currentWorkspace: Workspace; profile: Profile | null }) {
-  return <details className="relative lg:hidden"><summary className="focus-ring list-none rounded-xl border border-[var(--line)] bg-white p-2 text-ink"><span className="sr-only">Open navigation</span>☰</summary><div className="absolute left-0 top-12 z-30 w-72 rounded-2xl border border-[var(--line)] bg-white p-4 shadow-soft"><WorkspaceSwitcher workspaces={workspaces} currentWorkspace={currentWorkspace} /><div className="mt-5 space-y-1">{["/hub", "/settings/profile", "/settings/workspace", "/settings/members"].map((href) => <a key={href} href={href} className="block rounded-xl px-3 py-2 text-sm capitalize text-[#667878] hover:bg-sand">{href === "/hub" ? "Hub" : href.split("/").pop()?.replace("-", " ")}</a>)}</div><div className="mt-4 border-t border-[var(--line)] pt-3"><div className="mb-2 px-3 text-xs text-[#667878]">{profile?.full_name}</div><a href="/settings/profile" className="block rounded-xl px-3 py-2 text-sm text-[#667878]">Profile</a></div></div></details>;
+  const modules = [...getNavigationModules("primary"), ...getNavigationModules("settings")];
+  return <details className="relative lg:hidden"><summary className="focus-ring list-none rounded-xl border border-[var(--line)] bg-white p-2 text-ink"><span className="sr-only">Open navigation</span>☰</summary><div className="absolute left-0 top-12 z-30 w-72 rounded-2xl border border-[var(--line)] bg-white p-4 shadow-soft"><WorkspaceSwitcher workspaces={workspaces} currentWorkspace={currentWorkspace} /><div className="mt-5 space-y-1">{modules.map((module) => <a key={module.slug} href={getModuleHref(module)} className="block rounded-xl px-3 py-2 text-sm text-[#667878] hover:bg-sand">{module.name}</a>)}</div><div className="mt-4 border-t border-[var(--line)] pt-3"><div className="mb-2 px-3 text-xs text-[#667878]">{profile?.full_name}</div><a href="/settings/profile" className="block rounded-xl px-3 py-2 text-sm text-[#667878]">Profile</a></div></div></details>;
 }
 
 export function ProfileCard({ profile }: { profile: Profile | null }) { return <Card><CardContent><ProfileForm profile={profile} /></CardContent></Card>; }

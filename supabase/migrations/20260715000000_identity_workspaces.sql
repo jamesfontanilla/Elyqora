@@ -244,9 +244,9 @@ begin
   insert into public.profiles (id, full_name)
   select auth.uid(), coalesce(u.raw_user_meta_data ->> 'full_name', '')
   from auth.users u where u.id = auth.uid()
-  on conflict (id) do nothing;
+  on conflict do nothing;
 
-  select id into owner_role from public.roles where name = 'owner';
+  select r.id into owner_role from public.roles as r where r.name = 'owner';
   base_slug := coalesce(nullif(public.slugify(p_workspace_name), ''), 'workspace') || '-' || substr(gen_random_uuid()::text, 1, 8);
 
   insert into public.workspaces (name, slug, workspace_type, owner_id, created_by, updated_by)
@@ -281,11 +281,11 @@ begin
   if target_membership.user_id = auth.uid() then
     raise exception 'Use workspace ownership controls to change your own role';
   end if;
-  if target_membership.role_id = (select id from public.roles where name = 'owner') then
+  if target_membership.role_id = (select r.id from public.roles as r where r.name = 'owner') then
     raise exception 'The workspace owner role cannot be reassigned';
   end if;
 
-  select id into next_role from public.roles where name = next_role_name;
+  select r.id into next_role from public.roles as r where r.name = next_role_name;
   update public.memberships
   set role_id = next_role, updated_by = auth.uid()
   where id = target_membership_id
@@ -313,7 +313,7 @@ begin
     raise exception 'You cannot remove yourself from a workspace';
   end if;
   if target_membership.user_id = (select owner_id from public.workspaces where id = target_membership.workspace_id)
-     or target_membership.role_id = (select id from public.roles where name = 'owner') then
+     or target_membership.role_id = (select r.id from public.roles as r where r.name = 'owner') then
     raise exception 'The workspace owner cannot be removed';
   end if;
 
@@ -355,7 +355,7 @@ begin
     raise exception 'This invitation is restricted to another email address';
   end if;
 
-  select id into member_role from public.roles where name = 'member';
+  select r.id into member_role from public.roles as r where r.name = 'member';
   insert into public.memberships (workspace_id, user_id, role_id, status, created_by, updated_by)
   values (invitation.workspace_id, auth.uid(), member_role, 'active', auth.uid(), auth.uid())
   on conflict (workspace_id, user_id) do update set status = 'active', updated_by = auth.uid();

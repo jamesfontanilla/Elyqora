@@ -83,3 +83,48 @@ export interface ModuleDefinition {
   requiredPermission: PermissionKey;
   enabled: boolean;
 }
+
+export interface RecentItem {
+  id: string;
+  workspace_id: string;
+  user_id: string;
+  entity_type: string;
+  entity_id: string;
+  label: string;
+  href: string;
+  icon: string;
+  open_count: number;
+  last_opened_at: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface PinnedModule {
+  id: string;
+  workspace_id: string;
+  user_id: string;
+  module_slug: string;
+  position: number;
+}
+
+export interface DashboardPreferences {
+  id?: string;
+  workspace_id: string;
+  user_id: string;
+  quick_actions: string[];
+  layout: Record<string, unknown>;
+  show_recent: boolean;
+  show_notifications: boolean;
+}
+
+export interface NotificationItem {
+  id: string;
+  workspace_id: string;
+  user_id: string;
+  title: string;
+  body: string;
+  kind: "info" | "success" | "warning" | "mention";
+  href: string | null;
+  read_at: string | null;
+  created_at: string;
+}

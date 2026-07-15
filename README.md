@@ -15,7 +15,20 @@ The Identity and Workspaces module includes:
 - Audit events for workspace creation, rename, role change, member removal, invitation acceptance, and workspace deletion.
 - Responsive Hub, settings, members, onboarding, and invitation screens.
 
-The remaining modules are registered in `lib/modules/registry.ts` and remain disabled until their own implementation prompts are executed.
+The remaining modules are registered in `lib/modules/registry.ts` and remain disabled until their own implementation prompts are executed. The Hub reads that registry for desktop navigation, mobile navigation, the command palette, the module launcher, and enabled-module cards.
+
+The Hub support migration is `supabase/migrations/20260715000001_hub.sql`. It adds bounded, user-scoped recent items, pinned modules, dashboard preferences, and notifications. New workspaces receive a small initial dashboard seed; existing workspaces can receive the same seed by running `supabase/seed.sql` again.
+
+## Registering a new module in the Hub
+
+To add a future module:
+
+1. Add one `ModuleDefinition` record to `lib/modules/registry.ts` with a unique slug, icon, description, navigation group, required permission, and `enabled: true` when the module is ready.
+2. Add its route using `getModuleHref` conventions. Do not add separate hardcoded links to the shell, mobile menu, launcher, or command palette.
+3. Add the module’s database migration, workspace RLS policies, server actions, bounded list queries, loading/empty/error states, seed data, and tests.
+4. Add the module permission to `lib/types.ts`, `lib/permissions.ts`, and `supabase/seed.sql` if it requires a new access boundary.
+5. Use `TrackedLink` for important module/entity opens so the Hub’s recent-items list stays useful.
+6. Run `npm run typecheck`, `npm run lint`, `npm run test`, and `npm run build` before enabling the module.
 
 ## Local setup
 
