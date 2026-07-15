@@ -22,8 +22,8 @@ export async function createWorkspaceAction(_: ActionState, formData: FormData):
   try {
     const supabase = await createClient();
     const { data, error } = await supabase.rpc("create_workspace_for_current_user", {
-      workspace_name: parsed.data.name,
-      workspace_type: parsed.data.type,
+      p_workspace_name: parsed.data.name,
+      p_workspace_type: parsed.data.type,
     });
     if (error) return { error: error.message };
     const workspace = Array.isArray(data) ? data[0] : data;

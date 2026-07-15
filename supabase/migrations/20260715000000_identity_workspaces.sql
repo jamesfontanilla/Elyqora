@@ -218,8 +218,8 @@ end;
 $$;
 
 create or replace function public.create_workspace_for_current_user(
-  workspace_name text,
-  workspace_type text default 'team'
+  p_workspace_name text,
+  p_workspace_type text default 'team'
 )
 returns table (id uuid, name text, slug text, workspace_type text)
 language plpgsql
@@ -234,10 +234,10 @@ begin
   if auth.uid() is null then
     raise exception 'Authentication required';
   end if;
-  if char_length(trim(workspace_name)) not between 2 and 80 then
+  if char_length(trim(p_workspace_name)) not between 2 and 80 then
     raise exception 'Workspace name must be between 2 and 80 characters';
   end if;
-  if workspace_type not in ('personal', 'team', 'nonprofit', 'education', 'operations') then
+  if p_workspace_type not in ('personal', 'team', 'nonprofit', 'education', 'operations') then
     raise exception 'Invalid workspace type';
   end if;
 
@@ -247,16 +247,16 @@ begin
   on conflict (id) do nothing;
 
   select id into owner_role from public.roles where name = 'owner';
-  base_slug := coalesce(nullif(public.slugify(workspace_name), ''), 'workspace') || '-' || substr(gen_random_uuid()::text, 1, 8);
+  base_slug := coalesce(nullif(public.slugify(p_workspace_name), ''), 'workspace') || '-' || substr(gen_random_uuid()::text, 1, 8);
 
   insert into public.workspaces (name, slug, workspace_type, owner_id, created_by, updated_by)
-  values (trim(workspace_name), base_slug, workspace_type, auth.uid(), auth.uid(), auth.uid())
+  values (trim(p_workspace_name), base_slug, p_workspace_type, auth.uid(), auth.uid(), auth.uid())
   returning * into new_workspace;
 
   insert into public.memberships (workspace_id, user_id, role_id, status, created_by, updated_by)
   values (new_workspace.id, auth.uid(), owner_role, 'active', auth.uid(), auth.uid());
 
-  perform public.record_audit_event(new_workspace.id, 'workspace.created', 'workspace', new_workspace.id, jsonb_build_object('workspace_type', workspace_type));
+  perform public.record_audit_event(new_workspace.id, 'workspace.created', 'workspace', new_workspace.id, jsonb_build_object('workspace_type', p_workspace_type));
   return query select new_workspace.id, new_workspace.name, new_workspace.slug, new_workspace.workspace_type;
 end;
 $$;
