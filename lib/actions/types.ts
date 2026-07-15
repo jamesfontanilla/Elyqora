@@ -2,6 +2,7 @@ export type ActionState = {
   error?: string;
   message?: string;
   inviteUrl?: string;
+  publicUrl?: string;
 };
 
 export function actionError(error: unknown, fallback = "Something went wrong. Please try again."): ActionState {

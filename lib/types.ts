@@ -13,7 +13,10 @@ export type PermissionKey =
   | "profile.update"
   | "drive.read"
   | "drive.write"
-  | "drive.manage";
+  | "drive.manage"
+  | "docs.read"
+  | "docs.write"
+  | "docs.manage";
 
 export interface Profile {
   id: string;
@@ -201,6 +204,90 @@ export interface DriveAttachment {
   workspace_id: string;
   file_id: string;
   target_type: DriveAttachmentTarget;
+  target_id: string;
+  created_by: string;
+  created_at: string;
+}
+
+export type DocumentStatus = "draft" | "published";
+export type DocumentVisibility = "private" | "workspace" | "public";
+export type DocumentSharePermission = "read" | "edit";
+export type DocumentLinkTarget = "project" | "task" | "contact" | "ticket" | "event" | "course";
+
+export interface DocumentFolder {
+  id: string;
+  workspace_id: string;
+  parent_id: string | null;
+  name: string;
+  created_by: string;
+  updated_by: string;
+  created_at: string;
+  updated_at: string;
+  deleted_at: string | null;
+}
+
+export interface DocumentRecord {
+  id: string;
+  workspace_id: string;
+  folder_id: string | null;
+  title: string;
+  public_slug: string | null;
+  content_md: string;
+  status: DocumentStatus;
+  visibility: DocumentVisibility;
+  published_at: string | null;
+  published_by: string | null;
+  published_title: string | null;
+  published_content_md: string | null;
+  created_by: string;
+  updated_by: string;
+  created_at: string;
+  updated_at: string;
+  deleted_at: string | null;
+}
+
+export interface DocumentVersion {
+  id: string;
+  workspace_id: string;
+  document_id: string;
+  version_number: number;
+  title: string;
+  content_md: string;
+  status: DocumentStatus;
+  visibility: DocumentVisibility;
+  public_slug: string | null;
+  created_by: string;
+  restored_from_id: string | null;
+  created_at: string;
+}
+
+export interface DocumentTag {
+  id: string;
+  workspace_id: string;
+  name: string;
+  created_by: string;
+  created_at: string;
+}
+
+export interface DocumentComment {
+  id: string;
+  workspace_id: string;
+  document_id: string;
+  author_id: string;
+  body: string;
+  line_number: number | null;
+  resolved_at: string | null;
+  resolved_by: string | null;
+  created_at: string;
+  updated_at: string;
+  author?: Pick<Profile, "id" | "full_name" | "avatar_url"> | null;
+}
+
+export interface DocumentLink {
+  id: string;
+  workspace_id: string;
+  document_id: string;
+  target_type: DocumentLinkTarget;
   target_id: string;
   created_by: string;
   created_at: string;
