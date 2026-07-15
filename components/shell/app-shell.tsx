@@ -9,6 +9,7 @@ import { Breadcrumbs } from "@/components/shell/breadcrumbs";
 import { CommandPalette } from "@/components/shell/command-palette";
 import { ModuleLauncher } from "@/components/shell/module-launcher";
 import { ProfileMenu } from "@/components/shell/profile-menu";
+import { NavItem } from "@/components/shell/nav-item";
 
 export function AppShell({ children, profile, workspaces, currentWorkspace }: { children: React.ReactNode; profile: Profile | null; workspaces: Workspace[]; currentWorkspace: Workspace }) {
   const primary = getNavigationModules("primary");
@@ -16,12 +17,12 @@ export function AppShell({ children, profile, workspaces, currentWorkspace }: { 
   const settings = getNavigationModules("settings");
   return (
     <div className="min-h-screen bg-[var(--background)] lg:flex">
-      <aside className="hidden w-72 shrink-0 border-r border-[var(--line)] bg-white p-5 lg:flex lg:flex-col">
+      <aside className="hidden w-72 shrink-0 border-r border-[var(--line)] bg-white p-5 lg:sticky lg:top-0 lg:flex lg:h-screen lg:flex-col lg:overflow-y-auto">
         <div className="mb-8 flex items-center gap-3 px-2"><div className="grid h-10 w-10 place-items-center rounded-2xl bg-ink text-lg font-bold text-mint">E</div><div><div className="font-display text-xl font-semibold text-ink">Elyqora</div><div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-moss">Free workspace</div></div></div>
         <WorkspaceSwitcher workspaces={workspaces} currentWorkspace={currentWorkspace} />
         <nav className="mt-8 space-y-1" aria-label="Primary navigation">
           <div className="eyebrow mb-3 px-3">Workspace</div>
-          {[...primary, ...workspace].map((module) => <NavItem key={module.slug} href={getModuleHref(module)} icon={module.icon} label={module.name} active={module.slug === "hub"} />)}
+          {[...primary, ...workspace].map((module) => <NavItem key={module.slug} href={getModuleHref(module)} icon={module.icon} label={module.name} />)}
         </nav>
         <nav className="mt-auto space-y-1" aria-label="Settings navigation">
           <div className="eyebrow mb-3 px-3">Manage</div>
@@ -38,8 +39,4 @@ export function AppShell({ children, profile, workspaces, currentWorkspace }: { 
       </div>
     </div>
   );
-}
-
-function NavItem({ href, icon, label, active = false }: { href: string; icon: string; label: string; active?: boolean }) {
-  return <Link href={href} className={`focus-ring flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition ${active ? "bg-mint text-moss" : "text-[#667878] hover:bg-sand hover:text-ink"}`}><span className="grid h-6 w-6 place-items-center text-base">{icon}</span>{label}</Link>;
 }
