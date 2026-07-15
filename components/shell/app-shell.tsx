@@ -12,6 +12,7 @@ import { ProfileMenu } from "@/components/shell/profile-menu";
 
 export function AppShell({ children, profile, workspaces, currentWorkspace }: { children: React.ReactNode; profile: Profile | null; workspaces: Workspace[]; currentWorkspace: Workspace }) {
   const primary = getNavigationModules("primary");
+  const workspace = getNavigationModules("workspace");
   const settings = getNavigationModules("settings");
   return (
     <div className="min-h-screen bg-[var(--background)] lg:flex">
@@ -20,7 +21,7 @@ export function AppShell({ children, profile, workspaces, currentWorkspace }: { 
         <WorkspaceSwitcher workspaces={workspaces} currentWorkspace={currentWorkspace} />
         <nav className="mt-8 space-y-1" aria-label="Primary navigation">
           <div className="eyebrow mb-3 px-3">Workspace</div>
-          {primary.map((module) => <NavItem key={module.slug} href={getModuleHref(module)} icon={module.icon} label={module.name} active={module.slug === "hub"} />)}
+          {[...primary, ...workspace].map((module) => <NavItem key={module.slug} href={getModuleHref(module)} icon={module.icon} label={module.name} active={module.slug === "hub"} />)}
         </nav>
         <nav className="mt-auto space-y-1" aria-label="Settings navigation">
           <div className="eyebrow mb-3 px-3">Manage</div>

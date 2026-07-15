@@ -1,0 +1,3 @@
+Welcome to Elyqora Drive Lite.
+
+This small seed file demonstrates a private workspace file with signed previews and downloads.

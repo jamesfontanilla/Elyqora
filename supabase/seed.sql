@@ -26,6 +26,13 @@ values
   ('profile.update', 'Update profile', 'Edit the current user profile.')
 on conflict (key) do update set label = excluded.label, description = excluded.description;
 
+insert into public.permissions (key, label, description)
+values
+  ('drive.read', 'Read Drive Lite', 'View permitted workspace files and folders.'),
+  ('drive.write', 'Write Drive Lite', 'Upload and organize workspace files.'),
+  ('drive.manage', 'Manage Drive Lite', 'Manage restricted files, folders, and storage settings.')
+on conflict (key) do update set label = excluded.label, description = excluded.description;
+
 insert into public.role_permissions (role_id, permission_id)
 select r.id, p.id
 from public.roles r cross join public.permissions p
@@ -51,6 +58,27 @@ select r.id, p.id
 from public.roles r
 join public.permissions p on p.key in ('workspace.read', 'members.read', 'modules.read')
 where r.name = 'viewer'
+on conflict do nothing;
+
+insert into public.role_permissions (role_id, permission_id)
+select r.id, p.id
+from public.roles r cross join public.permissions p
+where r.name in ('owner', 'admin')
+  and p.key in ('drive.read', 'drive.write', 'drive.manage')
+on conflict do nothing;
+
+insert into public.role_permissions (role_id, permission_id)
+select r.id, p.id
+from public.roles r cross join public.permissions p
+where r.name = 'member'
+  and p.key in ('drive.read', 'drive.write')
+on conflict do nothing;
+
+insert into public.role_permissions (role_id, permission_id)
+select r.id, p.id
+from public.roles r cross join public.permissions p
+where r.name = 'viewer'
+  and p.key = 'drive.read'
 on conflict do nothing;
 
 insert into public.dashboard_preferences (workspace_id, user_id)
@@ -82,3 +110,15 @@ where w.deleted_at is null
       and n.user_id = w.owner_id
       and n.title = 'Workspace ready'
   );
+
+insert into public.drive_storage_settings (workspace_id)
+select w.id
+from public.workspaces w
+where w.deleted_at is null
+on conflict (workspace_id) do nothing;
+
+insert into public.drive_folders (workspace_id, parent_id, name, created_by, updated_by)
+select w.id, null, 'Welcome', w.owner_id, w.owner_id
+from public.workspaces w
+where w.deleted_at is null
+on conflict (workspace_id, parent_id, name) do nothing;

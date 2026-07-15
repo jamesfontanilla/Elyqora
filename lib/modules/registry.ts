@@ -25,7 +25,7 @@ export const ELYQORA_MODULES: ModuleDefinition[] = [
   { name: "Goals", slug: "goals", icon: "↗", description: "Connect effort to outcomes.", navigation: "workspace", requiredPermission: "modules.read", enabled: false },
   { name: "Reports", slug: "reports", icon: "▥", description: "Read operational summaries.", navigation: "workspace", requiredPermission: "modules.read", enabled: false },
   { name: "Dashboards", slug: "dashboards", icon: "▦", description: "Compose useful signals.", navigation: "workspace", requiredPermission: "modules.read", enabled: false },
-  { name: "Files", slug: "files", icon: "◇", description: "Store small workspace files safely.", navigation: "workspace", requiredPermission: "modules.read", enabled: false },
+  { name: "Files", slug: "files", icon: "◇", description: "Store small workspace files safely.", navigation: "workspace", requiredPermission: "drive.read", enabled: true },
   { name: "Comments", slug: "comments", icon: "◍", description: "Keep asynchronous discussions attached to work.", navigation: "workspace", requiredPermission: "modules.read", enabled: false },
   { name: "Automations", slug: "automations", icon: "✦", description: "Add retry-safe internal workflows.", navigation: "workspace", requiredPermission: "modules.read", enabled: false },
   { name: "Audit Log", slug: "audit-log", icon: "⌁", description: "Understand important workspace changes.", navigation: "settings", requiredPermission: "audit.read", enabled: false },
@@ -42,6 +42,7 @@ export const getNavigationModules = (navigation: ModuleDefinition["navigation"])
 
 export const getMobileNavigationModules = () => [
   ...getNavigationModules("primary"),
+  ...getNavigationModules("workspace"),
   ...getNavigationModules("settings"),
 ];
 

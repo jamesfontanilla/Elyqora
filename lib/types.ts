@@ -10,7 +10,10 @@ export type PermissionKey =
   | "members.manage"
   | "audit.read"
   | "modules.read"
-  | "profile.update";
+  | "profile.update"
+  | "drive.read"
+  | "drive.write"
+  | "drive.manage";
 
 export interface Profile {
   id: string;
@@ -126,5 +129,79 @@ export interface NotificationItem {
   kind: "info" | "success" | "warning" | "mention";
   href: string | null;
   read_at: string | null;
+  created_at: string;
+}
+
+export type DriveUploadStatus = "pending" | "ready" | "failed";
+export type DriveAccessLevel = "workspace" | "restricted";
+export type DriveSharePermission = "read" | "edit";
+export type DriveAttachmentTarget = "docs" | "expenses" | "projects" | "helpdesk" | "contacts";
+
+export interface DriveStorageSettings {
+  workspace_id: string;
+  max_file_size_bytes: number;
+  quota_bytes: number;
+  allowed_mime_types: string[];
+  created_at: string;
+  updated_at: string;
+}
+
+export interface DriveFolder {
+  id: string;
+  workspace_id: string;
+  parent_id: string | null;
+  name: string;
+  created_by: string;
+  updated_by: string;
+  created_at: string;
+  updated_at: string;
+  deleted_at: string | null;
+}
+
+export interface DriveFile {
+  id: string;
+  workspace_id: string;
+  folder_id: string | null;
+  name: string;
+  storage_path: string;
+  mime_type: string;
+  size_bytes: number;
+  upload_status: DriveUploadStatus;
+  access_level: DriveAccessLevel;
+  created_by: string;
+  updated_by: string;
+  deleted_by: string | null;
+  created_at: string;
+  updated_at: string;
+  deleted_at: string | null;
+}
+
+export interface DriveFileShare {
+  id: string;
+  workspace_id: string;
+  file_id: string;
+  user_id: string;
+  permission: DriveSharePermission;
+  created_by: string;
+  created_at: string;
+  updated_at: string;
+  profile?: Pick<Profile, "id" | "full_name" | "avatar_url"> | null;
+}
+
+export interface DriveFavorite {
+  id: string;
+  workspace_id: string;
+  file_id: string;
+  user_id: string;
+  created_at: string;
+}
+
+export interface DriveAttachment {
+  id: string;
+  workspace_id: string;
+  file_id: string;
+  target_type: DriveAttachmentTarget;
+  target_id: string;
+  created_by: string;
   created_at: string;
 }
