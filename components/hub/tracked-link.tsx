@@ -9,9 +9,10 @@ type TrackedLinkProps = LinkProps & React.AnchorHTMLAttributes<HTMLAnchorElement
   entityId: string;
   entityType: string;
   icon?: string;
+  label?: string;
 };
 
-export function TrackedLink({ workspaceId, entityId, entityType, icon = "•", href, children, onClick, ...props }: TrackedLinkProps) {
+export function TrackedLink({ workspaceId, entityId, entityType, icon = "•", label, href, children, onClick, ...props }: TrackedLinkProps) {
   const [, startTransition] = useTransition();
-  return <Link href={href} onClick={(event) => { onClick?.(event); if (!event.defaultPrevented) { startTransition(() => { void recordRecentItemAction({ workspaceId, entityId, entityType, label: typeof children === "string" ? children : String(href), href: String(href), icon }); }); } }} {...props}>{children}</Link>;
+  return <Link href={href} onClick={(event) => { onClick?.(event); if (!event.defaultPrevented) { startTransition(() => { void recordRecentItemAction({ workspaceId, entityId, entityType, label: label ?? (typeof children === "string" ? children : String(href)), href: String(href), icon }); }); } }} {...props}>{children}</Link>;
 }

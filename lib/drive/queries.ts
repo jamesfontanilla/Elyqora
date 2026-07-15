@@ -137,6 +137,12 @@ export async function getDriveFileForUser(fileId: string) {
   return (data as DriveFile | null) ?? null;
 }
 
+export async function getDriveAttachableFiles(workspaceId: string) {
+  const supabase = await createClient();
+  const { data } = await supabase.from("drive_files").select("id,name,size_bytes").eq("workspace_id", workspaceId).eq("upload_status", "ready").is("deleted_at", null).order("updated_at", { ascending: false }).range(0, 99);
+  return data ?? [];
+}
+
 export async function getDrivePreview(fileId: string) {
   const file = await getDriveFileForUser(fileId);
   if (!file || file.deleted_at || file.upload_status !== "ready") return null;

@@ -3,6 +3,9 @@ export type ActionState = {
   message?: string;
   inviteUrl?: string;
   publicUrl?: string;
+  savedAt?: string;
+  revision?: number;
+  conflict?: boolean;
 };
 
 export function actionError(error: unknown, fallback = "Something went wrong. Please try again."): ActionState {

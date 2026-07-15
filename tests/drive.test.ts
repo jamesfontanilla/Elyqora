@@ -39,6 +39,7 @@ describe("Drive Lite authorization and attachments", () => {
 
   it("limits attachment targets to future workspace modules", () => {
     expect(isDriveAttachmentTarget("docs")).toBe(true);
+    expect(isDriveAttachmentTarget("notes")).toBe(true);
     expect(isDriveAttachmentTarget("helpdesk")).toBe(true);
     expect(isDriveAttachmentTarget("random-table")).toBe(false);
   });

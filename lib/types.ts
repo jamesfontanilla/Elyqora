@@ -17,6 +17,9 @@ export type PermissionKey =
   | "docs.read"
   | "docs.write"
   | "docs.manage"
+  | "notes.read"
+  | "notes.write"
+  | "notes.manage"
   | "tables.read"
   | "tables.write"
   | "tables.manage";
@@ -141,7 +144,7 @@ export interface NotificationItem {
 export type DriveUploadStatus = "pending" | "ready" | "failed";
 export type DriveAccessLevel = "workspace" | "restricted";
 export type DriveSharePermission = "read" | "edit";
-export type DriveAttachmentTarget = "docs" | "expenses" | "projects" | "helpdesk" | "contacts";
+export type DriveAttachmentTarget = "docs" | "notes" | "expenses" | "projects" | "helpdesk" | "contacts";
 
 export interface DriveStorageSettings {
   workspace_id: string;
@@ -294,6 +297,84 @@ export interface DocumentLink {
   target_id: string;
   created_by: string;
   created_at: string;
+}
+
+export type NoteScope = "personal" | "workspace";
+export type NoteVisibility = "private" | "workspace";
+export type NoteColor = "sand" | "mint" | "coral" | "sky" | "amber" | "plum";
+export type NoteLinkTarget = DocumentLinkTarget;
+export type NoteReminderStatus = "scheduled" | "dismissed" | "triggered";
+
+export interface NoteChecklistItem {
+  id: string;
+  text: string;
+  checked: boolean;
+}
+
+export interface NoteRecord {
+  id: string;
+  workspace_id: string;
+  title: string;
+  body_md: string;
+  checklist_items: NoteChecklistItem[];
+  scope: NoteScope;
+  visibility: NoteVisibility;
+  color: NoteColor;
+  pinned: boolean;
+  archived_at: string | null;
+  archived_by: string | null;
+  revision: number;
+  created_by: string;
+  updated_by: string;
+  created_at: string;
+  updated_at: string;
+  deleted_at: string | null;
+  deleted_by: string | null;
+  owner?: Pick<Profile, "id" | "full_name" | "avatar_url"> | null;
+}
+
+export interface NoteLabel {
+  id: string;
+  workspace_id: string;
+  note_id: string;
+  label: string;
+  created_by: string;
+  created_at: string;
+}
+
+export interface NoteLink {
+  id: string;
+  workspace_id: string;
+  note_id: string;
+  target_type: NoteLinkTarget;
+  target_id: string;
+  created_by: string;
+  created_at: string;
+}
+
+export interface NoteReminder {
+  id: string;
+  workspace_id: string;
+  note_id: string;
+  remind_at: string;
+  status: NoteReminderStatus;
+  notification_id: string | null;
+  created_by: string;
+  updated_by: string;
+  created_at: string;
+  updated_at: string;
+  note?: Pick<NoteRecord, "id" | "title" | "color" | "scope" | "visibility" | "pinned" | "archived_at"> | null;
+  notification?: Pick<NotificationItem, "id" | "title" | "body" | "kind" | "href" | "read_at" | "created_at"> | null;
+}
+
+export interface NoteAttachment {
+  id: string;
+  workspace_id: string;
+  note_id: string;
+  file_id: string;
+  created_by: string;
+  created_at: string;
+  file?: Pick<DriveFile, "id" | "name" | "mime_type" | "size_bytes" | "upload_status"> | null;
 }
 
 export type TableColumnType = "text" | "long_text" | "number" | "currency" | "boolean" | "date" | "single_select" | "multi_select" | "url" | "user_reference";

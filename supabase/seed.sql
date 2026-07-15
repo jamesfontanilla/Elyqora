@@ -42,6 +42,13 @@ on conflict (key) do update set label = excluded.label, description = excluded.d
 
 insert into public.permissions (key, label, description)
 values
+  ('notes.read', 'Read Notes', 'View accessible personal and workspace notes.'),
+  ('notes.write', 'Write Notes', 'Create and edit notes, labels, reminders, links, and attachments.'),
+  ('notes.manage', 'Manage Notes', 'Archive, delete, restore, and manage note visibility.')
+on conflict (key) do update set label = excluded.label, description = excluded.description;
+
+insert into public.permissions (key, label, description)
+values
   ('tables.read', 'Read Tables', 'View workspace tables, rows, comments, and activity.'),
   ('tables.write', 'Write Tables', 'Create and edit tables, columns, rows, comments, and views.'),
   ('tables.manage', 'Manage Tables', 'Delete tables and perform other destructive table maintenance.')
@@ -72,6 +79,27 @@ select r.id, p.id
 from public.roles r
 join public.permissions p on p.key in ('workspace.read', 'members.read', 'modules.read')
 where r.name = 'viewer'
+on conflict do nothing;
+
+insert into public.role_permissions (role_id, permission_id)
+select r.id, p.id
+from public.roles r cross join public.permissions p
+where r.name in ('owner', 'admin')
+  and p.key in ('notes.read', 'notes.write', 'notes.manage')
+on conflict do nothing;
+
+insert into public.role_permissions (role_id, permission_id)
+select r.id, p.id
+from public.roles r cross join public.permissions p
+where r.name = 'member'
+  and p.key in ('notes.read', 'notes.write')
+on conflict do nothing;
+
+insert into public.role_permissions (role_id, permission_id)
+select r.id, p.id
+from public.roles r cross join public.permissions p
+where r.name = 'viewer'
+  and p.key = 'notes.read'
 on conflict do nothing;
 
 insert into public.role_permissions (role_id, permission_id)
@@ -445,4 +473,101 @@ where not exists (
   where existing.table_id = tracker.table_id
     and existing.deleted_at is null
     and existing.cell_values ->> tracker.name_column_id::text = 'Quarterly review'
+);
+
+with tracker as (
+  select workspace_record.id as workspace_id, workspace_record.owner_id
+  from public.workspaces workspace_record
+  where workspace_record.deleted_at is null
+)
+insert into public.notes (workspace_id, title, body_md, checklist_items, scope, visibility, color, pinned, created_by, updated_by)
+select
+  tracker.workspace_id,
+  'Private scratchpad',
+  E'Use this personal note for rough thoughts, solo follow-ups, and fast capture before work gets formal.\n\n- Jot the idea\n- Revisit later\n',
+  '[]'::jsonb,
+  'personal',
+  'private',
+  'sand',
+  false,
+  tracker.owner_id,
+  tracker.owner_id
+from tracker
+where not exists (
+  select 1
+  from public.notes existing
+  where existing.workspace_id = tracker.workspace_id
+    and existing.title = 'Private scratchpad'
+    and existing.scope = 'personal'
+    and existing.deleted_at is null
+);
+
+with tracker as (
+  select workspace_record.id as workspace_id, workspace_record.owner_id
+  from public.workspaces workspace_record
+  where workspace_record.deleted_at is null
+)
+insert into public.notes (workspace_id, title, body_md, checklist_items, scope, visibility, color, pinned, created_by, updated_by)
+select
+  tracker.workspace_id,
+  'Capture board',
+  E'Use this shared note for meeting takeaways, quick reminders, and light workspace planning.',
+  jsonb_build_array(jsonb_build_object('id', 'note-check-1', 'text', 'Review the current setup list', 'checked', false)),
+  'workspace',
+  'workspace',
+  'mint',
+  true,
+  tracker.owner_id,
+  tracker.owner_id
+from tracker
+where not exists (
+  select 1
+  from public.notes existing
+  where existing.workspace_id = tracker.workspace_id
+    and existing.title = 'Capture board'
+    and existing.scope = 'workspace'
+    and existing.deleted_at is null
+);
+
+with tracker as (
+  select
+    workspace_record.id as workspace_id,
+    workspace_record.owner_id,
+    note_record.id as note_id
+  from public.workspaces workspace_record
+  join public.notes note_record on note_record.workspace_id = workspace_record.id
+  where workspace_record.deleted_at is null
+    and note_record.deleted_at is null
+    and note_record.scope = 'workspace'
+    and note_record.title = 'Capture board'
+)
+insert into public.note_labels (workspace_id, note_id, label, created_by)
+select tracker.workspace_id, tracker.note_id, 'launch', tracker.owner_id
+from tracker
+where not exists (
+  select 1
+  from public.note_labels existing
+  where existing.note_id = tracker.note_id
+    and existing.label = 'launch'
+);
+
+with tracker as (
+  select
+    workspace_record.id as workspace_id,
+    workspace_record.owner_id,
+    note_record.id as note_id
+  from public.workspaces workspace_record
+  join public.notes note_record on note_record.workspace_id = workspace_record.id
+  where workspace_record.deleted_at is null
+    and note_record.deleted_at is null
+    and note_record.scope = 'workspace'
+    and note_record.title = 'Capture board'
+)
+insert into public.note_reminders (workspace_id, note_id, remind_at, status, created_by, updated_by)
+select tracker.workspace_id, tracker.note_id, now() + interval '2 days', 'scheduled', tracker.owner_id, tracker.owner_id
+from tracker
+where not exists (
+  select 1
+  from public.note_reminders existing
+  where existing.note_id = tracker.note_id
 );

@@ -18,8 +18,9 @@ The Identity and Workspaces module includes:
 - Drive Lite stores metadata in PostgreSQL and content in the private `elyqora-drive` Supabase Storage bucket. The default limit is 10 MB per file and 100 MB per workspace; owners and admins can adjust those limits within the safe maximum.
 - Docs is a Markdown-first document system with folders, safe preview mode, debounced drafts, manual version saves, version restoration, comments and mentions, tags, favorites, workspace sharing, explicit public publishing, full-text search metadata, and Drive Lite attachment targets. It intentionally does not attempt realtime simultaneous editing.
 - Tables is a lightweight structured-data tool with named tables, safe column types, row editing, hide/reorder/filter/sort behavior, saved views, CSV import and export, row comments, row activity, and workspace-level RLS. It intentionally skips formulas, macros, large imports, and spreadsheet-style recalculation.
+- Notes is a lightweight personal and workspace note system with Markdown bodies, checklist items, labels, colors, pinning, archiving, reminders that surface in Hub notifications, Drive Lite attachments, restoreable soft deletion, bounded search, and workspace-aware visibility. It intentionally stays lighter than Docs and does not try to be a full document editor.
 
-The remaining modules are registered in `lib/modules/registry.ts` and remain disabled until their own implementation prompts are executed. Hub, Drive Lite, Docs, and Tables are the enabled workspace modules. The Hub and shell read that registry for desktop navigation, mobile navigation, the command palette, the module launcher, and enabled-module cards.
+The remaining modules are registered in `lib/modules/registry.ts` and remain disabled until their own implementation prompts are executed. Hub, Drive Lite, Docs, Notes, and Tables are the enabled workspace modules. The Hub and shell read that registry for desktop navigation, mobile navigation, the command palette, the module launcher, and enabled-module cards.
 
 The Hub support migration is `supabase/migrations/20260715000001_hub.sql`. It adds bounded, user-scoped recent items, pinned modules, dashboard preferences, and notifications. New workspaces receive a small initial dashboard seed; existing workspaces can receive the same seed by running `supabase/seed.sql` again.
 
@@ -28,6 +29,8 @@ Drive Lite is added by `supabase/migrations/20260715000002_drive_lite.sql`. It c
 Docs is added by `supabase/migrations/20260715000003_docs.sql`. It creates normalized document, folder, version, tag, comment, mention, link, favorite, and share tables with workspace RLS. Public routes read only the explicitly published snapshot through the `get_public_document` function, so autosaved drafts cannot appear at a public URL. Apply the migration before using `/docs`; rerun `supabase/seed.sql` to add the welcome folder and document to existing workspaces.
 
 Tables is added by `supabase/migrations/20260715000004_tables.sql`. It creates the table, column, view, row, comment, and activity tables with workspace RLS and server-side validation. Apply the migration before using `/tables`; rerun `supabase/seed.sql` to add a realistic starter table to existing workspaces.
+
+Notes is added by `supabase/migrations/20260715000005_notes.sql`. It creates notes, labels, links, reminders, and attachment mirror tables with workspace RLS, note-level access helpers, reminder notifications, and soft deletion/restore flows. Apply the migration before using `/notes`; rerun `supabase/seed.sql` to add starter personal and workspace notes to existing workspaces.
 
 ## Tables limits
 
@@ -41,6 +44,17 @@ Tables is deliberately bounded so it stays lightweight on the Supabase Free tier
 - 500-row CSV exports
 - supported column types: text, long text, number, currency, boolean, date, single select, multi-select, URL, and user reference
 - no formulas, macros, import automation, or spreadsheet recalculation
+
+## Notes limits
+
+Notes is intentionally bounded so it stays fast and simple:
+
+- 12,000 characters max for note body Markdown
+- 180 characters max for note titles
+- 40 characters max for a label
+- 30 checklist items max per note
+- one scheduled reminder row per note
+- bounded search and label pages, not cross-module joins
 
 ## Registering a new module in the Hub
 
@@ -81,7 +95,7 @@ Run the SQL in this order using the Supabase SQL editor or the Supabase CLI:
 supabase db reset
 ```
 
-The migrations are in `supabase/migrations/20260715000000_identity_workspaces.sql`, `supabase/migrations/20260715000001_hub.sql`, `supabase/migrations/20260715000002_drive_lite.sql`, `supabase/migrations/20260715000003_docs.sql`, and `supabase/migrations/20260715000004_tables.sql`; seed data is in `supabase/seed.sql`. Run `npm run seed:drive` after the database migration when you want the sample file content in Storage.
+The migrations are in `supabase/migrations/20260715000000_identity_workspaces.sql`, `supabase/migrations/20260715000001_hub.sql`, `supabase/migrations/20260715000002_drive_lite.sql`, `supabase/migrations/20260715000003_docs.sql`, `supabase/migrations/20260715000004_tables.sql`, and `supabase/migrations/20260715000005_notes.sql`; seed data is in `supabase/seed.sql`. Run `npm run seed:drive` after the database migration when you want the sample file content in Storage.
 
 For hosted Supabase, apply the migration and seed SQL through the project’s database workflow. Make sure email confirmation and password reset redirect URLs include:
 

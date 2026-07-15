@@ -4,7 +4,7 @@ export const ELYQORA_MODULES: ModuleDefinition[] = [
   { name: "Hub", slug: "hub", icon: "⌂", description: "Your operating overview.", navigation: "primary", requiredPermission: "modules.read", enabled: true },
   { name: "Tasks", slug: "tasks", icon: "✓", description: "Plan and track focused work.", navigation: "primary", requiredPermission: "modules.read", enabled: false },
   { name: "Projects", slug: "projects", icon: "▣", description: "Coordinate outcomes and milestones.", navigation: "primary", requiredPermission: "modules.read", enabled: false },
-  { name: "Notes", slug: "notes", icon: "✎", description: "Capture durable knowledge.", navigation: "primary", requiredPermission: "modules.read", enabled: false },
+  { name: "Notes", slug: "notes", icon: "✎", description: "Capture quick thoughts and reminders.", navigation: "primary", requiredPermission: "notes.read", enabled: true },
   { name: "Docs", slug: "docs", icon: "▤", description: "Keep important documents together.", navigation: "primary", requiredPermission: "docs.read", enabled: true },
   { name: "Calendar", slug: "calendar", icon: "◫", description: "Organize time without external providers.", navigation: "primary", requiredPermission: "modules.read", enabled: false },
   { name: "Contacts", slug: "contacts", icon: "♧", description: "Maintain people and relationship context.", navigation: "primary", requiredPermission: "modules.read", enabled: false },
