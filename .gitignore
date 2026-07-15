@@ -1,4 +1,5 @@
 docs/prompts/
+supabase/
 .next/
 node_modules/
 coverage/
