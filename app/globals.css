@@ -1,0 +1,24 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #f7f8f4;
+  --foreground: #102a2a;
+  --muted: #667878;
+  --line: #dce5df;
+  --surface: #ffffff;
+  --surface-strong: #eef6f0;
+}
+
+* { box-sizing: border-box; }
+html { min-width: 320px; background: var(--background); }
+body { margin: 0; background: var(--background); color: var(--foreground); font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif; }
+a { color: inherit; text-decoration: none; }
+button, input, select, textarea { font: inherit; }
+
+@layer components {
+  .eyebrow { @apply text-[11px] font-semibold uppercase tracking-[0.18em] text-moss; }
+  .surface { @apply rounded-2xl border border-[var(--line)] bg-white shadow-soft; }
+  .focus-ring { @apply outline-none ring-offset-2 focus-visible:ring-2 focus-visible:ring-moss focus-visible:ring-offset-2; }
+}

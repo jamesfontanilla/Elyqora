@@ -1,0 +1,15 @@
+import Link from "next/link";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { getCurrentUser, getMembership, hasPermission } from "@/lib/auth/guards";
+import { getCurrentWorkspace, getWorkspaceInvitations, getWorkspaceMembers } from "@/lib/workspaces/current";
+import { InvitationForm, InvitationRow, MemberRow } from "@/components/workspaces/workspace-forms";
+
+export default async function MembersSettingsPage() {
+  const user = await getCurrentUser();
+  if (!user) return null;
+  const workspace = await getCurrentWorkspace(user.id);
+  if (!workspace) return null;
+  const [membership, members, invitations, canManage] = await Promise.all([getMembership(workspace.id, user.id), getWorkspaceMembers(workspace.id), getWorkspaceInvitations(workspace.id), hasPermission(workspace.id, "members.manage")]);
+  return <div className="mx-auto max-w-5xl space-y-8"><div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end"><div><p className="eyebrow">Settings / Members</p><h1 className="mt-2 font-display text-4xl font-semibold text-ink">People in {workspace.name}</h1><p className="mt-3 text-[#667878]">Manage access with simple, understandable roles.</p></div><Link href="/settings/workspace"><Button variant="secondary">Workspace settings</Button></Link></div><div className="grid gap-6 lg:grid-cols-[1.15fr_0.85fr]"><Card><CardHeader><div className="flex items-center justify-between"><div><h2 className="font-display text-2xl font-semibold text-ink">Members</h2><p className="mt-1 text-sm text-[#667878]">{members.length} current member{members.length === 1 ? "" : "s"}.</p></div><span className="text-xs font-semibold uppercase tracking-[0.12em] text-[#8a9992]">{membership?.role.label}</span></div></CardHeader><CardContent className="pt-2">{members.length ? members.map((member) => <MemberRow key={member.id} member={member as never} canManage={canManage} />) : <div className="py-8 text-center text-sm text-[#667878]">No members found.</div>}</CardContent></Card><Card><CardHeader><h2 className="font-display text-2xl font-semibold text-ink">Invite someone</h2><p className="mt-1 text-sm leading-6 text-[#667878]">Generate a link to copy into your existing communication channel. Elyqora does not send invitation email.</p></CardHeader><CardContent>{canManage ? <InvitationForm workspaceId={workspace.id} /> : <div className="rounded-xl bg-sand p-4 text-sm leading-6 text-[#667878]">Only owners and admins can create invitation links.</div>}</CardContent></Card></div><Card><CardHeader><h2 className="font-display text-2xl font-semibold text-ink">Invitation links</h2><p className="mt-1 text-sm text-[#667878]">Links expire after seven days and can be revoked before acceptance.</p></CardHeader><CardContent className="pt-2">{invitations.length ? invitations.map((invitation) => <InvitationRow key={invitation.id} invitation={invitation} workspaceId={workspace.id} canManage={canManage} />) : <div className="py-8 text-center text-sm text-[#667878]">No invitation links yet.</div>}</CardContent></Card></div>;
+}
