@@ -16,7 +16,10 @@ export type PermissionKey =
   | "drive.manage"
   | "docs.read"
   | "docs.write"
-  | "docs.manage";
+  | "docs.manage"
+  | "tables.read"
+  | "tables.write"
+  | "tables.manage";
 
 export interface Profile {
   id: string;
@@ -291,4 +294,109 @@ export interface DocumentLink {
   target_id: string;
   created_by: string;
   created_at: string;
+}
+
+export type TableColumnType = "text" | "long_text" | "number" | "currency" | "boolean" | "date" | "single_select" | "multi_select" | "url" | "user_reference";
+export type TableFilterOperator = "contains" | "equals" | "not_equals" | "is_empty" | "not_empty" | "greater_than" | "less_than" | "before" | "after";
+export type TableSortDirection = "asc" | "desc";
+
+export interface TableColumnSettings {
+  options?: string[];
+  precision?: number;
+  currency_code?: string;
+}
+
+export interface WorkspaceTable {
+  id: string;
+  workspace_id: string;
+  name: string;
+  description: string;
+  created_by: string;
+  updated_by: string;
+  created_at: string;
+  updated_at: string;
+  deleted_at: string | null;
+  deleted_by: string | null;
+}
+
+export interface TableColumn {
+  id: string;
+  workspace_id: string;
+  table_id: string;
+  name: string;
+  column_key: string;
+  column_type: TableColumnType;
+  position: number;
+  is_hidden: boolean;
+  is_required: boolean;
+  settings: TableColumnSettings;
+  created_by: string;
+  updated_by: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface TableRow {
+  id: string;
+  workspace_id: string;
+  table_id: string;
+  row_order: number;
+  cell_values: Record<string, unknown>;
+  created_by: string;
+  updated_by: string;
+  created_at: string;
+  updated_at: string;
+  deleted_at: string | null;
+  deleted_by: string | null;
+}
+
+export interface TableView {
+  id: string;
+  workspace_id: string;
+  table_id: string;
+  name: string;
+  is_default: boolean;
+  filter_rules: TableFilterRule[];
+  sort_rules: TableSortRule[];
+  hidden_column_ids: string[];
+  column_order: string[];
+  created_by: string;
+  updated_by: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface TableFilterRule {
+  column_id: string;
+  operator: TableFilterOperator;
+  value: string | number | boolean | null | string[];
+}
+
+export interface TableSortRule {
+  column_id: string;
+  direction: TableSortDirection;
+}
+
+export interface TableRowComment {
+  id: string;
+  workspace_id: string;
+  table_id: string;
+  row_id: string;
+  author_id: string;
+  body: string;
+  created_at: string;
+  updated_at: string;
+  author?: Pick<Profile, "id" | "full_name" | "avatar_url"> | null;
+}
+
+export interface TableRowActivity {
+  id: string;
+  workspace_id: string;
+  table_id: string;
+  row_id: string;
+  actor_id: string | null;
+  action: string;
+  metadata: Record<string, unknown>;
+  created_at: string;
+  actor?: Pick<Profile, "id" | "full_name" | "avatar_url"> | null;
 }

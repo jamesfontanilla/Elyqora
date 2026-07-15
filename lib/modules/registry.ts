@@ -10,7 +10,7 @@ export const ELYQORA_MODULES: ModuleDefinition[] = [
   { name: "Contacts", slug: "contacts", icon: "♧", description: "Maintain people and relationship context.", navigation: "primary", requiredPermission: "modules.read", enabled: false },
   { name: "CRM", slug: "crm", icon: "◎", description: "Manage simple relationship pipelines.", navigation: "primary", requiredPermission: "modules.read", enabled: false },
   { name: "Forms", slug: "forms", icon: "☷", description: "Collect structured information.", navigation: "primary", requiredPermission: "modules.read", enabled: false },
-  { name: "Lists", slug: "lists", icon: "☰", description: "Build flexible operational lists.", navigation: "primary", requiredPermission: "modules.read", enabled: false },
+  { name: "Tables", slug: "tables", icon: "▦", description: "Shape lightweight structured data.", navigation: "workspace", requiredPermission: "tables.read", enabled: true },
   { name: "Inventory", slug: "inventory", icon: "▥", description: "Know what is available.", navigation: "workspace", requiredPermission: "modules.read", enabled: false },
   { name: "Assets", slug: "assets", icon: "◆", description: "Track equipment and resources.", navigation: "workspace", requiredPermission: "modules.read", enabled: false },
   { name: "Requests", slug: "requests", icon: "↗", description: "Route internal requests.", navigation: "workspace", requiredPermission: "modules.read", enabled: false },
