@@ -44,8 +44,8 @@ describe("Notes registry and navigation", () => {
     });
   });
 
-  it("keeps disabled modules disabled while mobile navigation still includes Notes", () => {
-    expect(ELYQORA_MODULES.find((module) => module.slug === "tasks")?.enabled).toBe(false);
+  it("keeps Tasks and Notes enabled while mobile navigation still includes Notes", () => {
+    expect(ELYQORA_MODULES.find((module) => module.slug === "tasks")?.enabled).toBe(true);
     expect(getMobileNavigationModules().some((module) => module.slug === "notes")).toBe(true);
   });
 });

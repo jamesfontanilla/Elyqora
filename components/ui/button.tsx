@@ -1,4 +1,4 @@
-import type { ButtonHTMLAttributes } from "react";
+import React, { type ButtonHTMLAttributes } from "react";
 import { cn } from "@/lib/utils";
 
 type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & { variant?: "primary" | "secondary" | "ghost" | "danger" };

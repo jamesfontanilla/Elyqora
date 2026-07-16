@@ -2,7 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getCurrentWorkspace } from "@/lib/workspaces/current";
 import { getProfile } from "@/lib/auth/guards";
 import { getEnabledModules } from "@/lib/modules/registry";
-import type { DashboardPreferences, NotificationItem, PinnedModule, RecentItem, Workspace } from "@/lib/types";
+import type { DashboardPreferences, NotificationItem, PinnedModule, RecentItem, TaskRecord, Workspace } from "@/lib/types";
 
 export const DEFAULT_DASHBOARD_PREFERENCES: DashboardPreferences = {
   workspace_id: "",
@@ -22,7 +22,7 @@ export interface HubData {
   notifications: NotificationItem[];
   preferences: DashboardPreferences;
   enabledModules: ReturnType<typeof getEnabledModules>;
-  assignedTasks: never[];
+  assignedTasks: TaskRecord[];
   upcomingEvents: never[];
   activeProjects: never[];
 }
@@ -40,6 +40,16 @@ export async function getHubData(userId: string): Promise<HubData | null> {
     supabase.from("notifications").select("*").eq("workspace_id", workspace.id).eq("user_id", userId).order("created_at", { ascending: false }).range(0, 5),
     supabase.from("dashboard_preferences").select("*").eq("workspace_id", workspace.id).eq("user_id", userId).maybeSingle(),
   ]);
+  const assignedTasks = await supabase
+    .from("tasks")
+    .select("*")
+    .eq("workspace_id", workspace.id)
+    .is("deleted_at", null)
+    .in("status", ["todo", "in_progress", "blocked"])
+    .or(`assignee_id.eq.${userId},created_by.eq.${userId}`)
+    .order("due_date", { ascending: true, nullsFirst: false })
+    .order("updated_at", { ascending: false })
+    .range(0, 7);
 
   const preferenceData = preferences.data as DashboardPreferences | null;
   const safePreferences: DashboardPreferences = preferenceData
@@ -55,9 +65,7 @@ export async function getHubData(userId: string): Promise<HubData | null> {
     notifications: (notifications.data ?? []) as NotificationItem[],
     preferences: safePreferences,
     enabledModules: getEnabledModules(),
-    // These module tables intentionally do not exist until their modules are implemented.
-    // Keeping the summary arrays bounded and local lets Hub stay useful without cross-module joins.
-    assignedTasks: [],
+    assignedTasks: (assignedTasks.data ?? []) as TaskRecord[],
     upcomingEvents: [],
     activeProjects: [],
   };

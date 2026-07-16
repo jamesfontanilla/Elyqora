@@ -14,7 +14,7 @@ describe("Hub workspace isolation", () => {
 
 describe("Hub navigation and empty states", () => {
   it("only exposes enabled modules in navigation", () => {
-    expect(getNavigationModules("primary").some((module) => module.slug === "tasks")).toBe(false);
+    expect(getNavigationModules("primary").some((module) => module.slug === "tasks")).toBe(true);
     expect(getNavigationModules("primary").some((module) => module.slug === "hub")).toBe(true);
     expect(getNavigationModules("settings").some((module) => module.slug === "settings")).toBe(true);
   });
@@ -27,7 +27,7 @@ describe("Hub navigation and empty states", () => {
 
   it("routes settings through its settings entry and disables planned modules", () => {
     expect(getModuleHref(getModuleBySlug("settings")!)).toBe("/settings/profile");
-    expect(getModuleBySlug("tasks")?.enabled).toBe(false);
+    expect(getModuleBySlug("tasks")?.enabled).toBe(true);
   });
 
   it("returns calm empty states until module tables exist", () => {

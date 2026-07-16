@@ -24,5 +24,5 @@ export function canReadDriveRecord({
 }
 
 export function isDriveAttachmentTarget(value: string) {
-  return ["docs", "notes", "expenses", "projects", "helpdesk", "contacts"].includes(value);
+  return ["docs", "notes", "tasks", "expenses", "projects", "helpdesk", "contacts"].includes(value);
 }

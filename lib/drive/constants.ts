@@ -33,6 +33,7 @@ export const DRIVE_IMAGE_MIME_TYPES = new Set([
 export const DRIVE_ATTACHMENT_TARGETS: Array<{ value: DriveAttachmentTarget; label: string }> = [
   { value: "docs", label: "Docs" },
   { value: "notes", label: "Notes" },
+  { value: "tasks", label: "Tasks" },
   { value: "expenses", label: "Expenses" },
   { value: "projects", label: "Projects" },
   { value: "helpdesk", label: "Helpdesk" },

@@ -20,6 +20,9 @@ export type PermissionKey =
   | "notes.read"
   | "notes.write"
   | "notes.manage"
+  | "tasks.read"
+  | "tasks.write"
+  | "tasks.manage"
   | "tables.read"
   | "tables.write"
   | "tables.manage";
@@ -137,6 +140,10 @@ export interface NotificationItem {
   body: string;
   kind: "info" | "success" | "warning" | "mention";
   href: string | null;
+  source_type?: string | null;
+  source_id?: string | null;
+  dedupe_key?: string | null;
+  metadata?: Record<string, unknown>;
   read_at: string | null;
   created_at: string;
 }
@@ -144,7 +151,7 @@ export interface NotificationItem {
 export type DriveUploadStatus = "pending" | "ready" | "failed";
 export type DriveAccessLevel = "workspace" | "restricted";
 export type DriveSharePermission = "read" | "edit";
-export type DriveAttachmentTarget = "docs" | "notes" | "expenses" | "projects" | "helpdesk" | "contacts";
+export type DriveAttachmentTarget = "docs" | "notes" | "tasks" | "expenses" | "projects" | "helpdesk" | "contacts";
 
 export interface DriveStorageSettings {
   workspace_id: string;
@@ -371,6 +378,100 @@ export interface NoteAttachment {
   id: string;
   workspace_id: string;
   note_id: string;
+  file_id: string;
+  created_by: string;
+  created_at: string;
+  file?: Pick<DriveFile, "id" | "name" | "mime_type" | "size_bytes" | "upload_status"> | null;
+}
+
+export type TaskScope = "personal" | "workspace";
+export type TaskStatus = "todo" | "in_progress" | "blocked" | "completed" | "canceled";
+export type TaskPriority = "low" | "medium" | "high" | "urgent";
+export type TaskRecurrenceFrequency = "daily" | "weekly" | "monthly" | "yearly";
+export type TaskLinkTarget = DocumentLinkTarget | "goal";
+
+export interface TaskRecurrenceRule {
+  frequency: TaskRecurrenceFrequency;
+  interval: number;
+  weekdays?: number[];
+  day_of_month?: number | null;
+  end_date?: string | null;
+}
+
+export interface TaskRecord {
+  id: string;
+  workspace_id: string;
+  parent_task_id: string | null;
+  series_id: string;
+  recurrence_rule: TaskRecurrenceRule | null;
+  recurrence_occurrence: number;
+  title: string;
+  description_md: string;
+  status: TaskStatus;
+  priority: TaskPriority;
+  scope: TaskScope;
+  assignee_id: string | null;
+  start_date: string | null;
+  due_date: string | null;
+  completed_at: string | null;
+  completed_by: string | null;
+  created_by: string;
+  updated_by: string;
+  created_at: string;
+  updated_at: string;
+  deleted_at: string | null;
+  deleted_by: string | null;
+  revision: number;
+  search_document?: string | null;
+  creator?: Pick<Profile, "id" | "full_name" | "avatar_url"> | null;
+  assignee?: Pick<Profile, "id" | "full_name" | "avatar_url"> | null;
+}
+
+export interface TaskLabel {
+  id: string;
+  workspace_id: string;
+  task_id: string;
+  label: string;
+  created_by: string;
+  created_at: string;
+}
+
+export interface TaskDependency {
+  id: string;
+  workspace_id: string;
+  task_id: string;
+  depends_on_task_id: string;
+  created_by: string;
+  created_at: string;
+  blocking_task?: Pick<TaskRecord, "id" | "title" | "status" | "priority" | "due_date" | "assignee_id"> | null;
+}
+
+export interface TaskComment {
+  id: string;
+  workspace_id: string;
+  task_id: string;
+  author_id: string;
+  body: string;
+  created_at: string;
+  updated_at: string;
+  deleted_at: string | null;
+  author?: Pick<Profile, "id" | "full_name" | "avatar_url"> | null;
+}
+
+export interface TaskLink {
+  id: string;
+  workspace_id: string;
+  task_id: string;
+  target_type: TaskLinkTarget;
+  target_id: string;
+  created_by: string;
+  created_at: string;
+}
+
+export interface TaskAttachment {
+  id: string;
+  workspace_id: string;
+  task_id: string;
   file_id: string;
   created_by: string;
   created_at: string;

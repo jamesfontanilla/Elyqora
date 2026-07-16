@@ -17,10 +17,11 @@ The Identity and Workspaces module includes:
 - Drive Lite for small private workspace files: nested folders, bounded uploads, safe previews, signed downloads, favorites, sharing, soft deletion, restore, recycle-bin cleanup, and reusable attachment targets for Docs, Expenses, Projects, Helpdesk, and Contacts.
 - Drive Lite stores metadata in PostgreSQL and content in the private `elyqora-drive` Supabase Storage bucket. The default limit is 10 MB per file and 100 MB per workspace; owners and admins can adjust those limits within the safe maximum.
 - Docs is a Markdown-first document system with folders, safe preview mode, debounced drafts, manual version saves, version restoration, comments and mentions, tags, favorites, workspace sharing, explicit public publishing, full-text search metadata, and Drive Lite attachment targets. It intentionally does not attempt realtime simultaneous editing.
+- Tasks is a reliable personal and workspace task system with list, board, calendar, mine, overdue, and completed views; subtasks; dependencies; recurring work; comments; attachments; audit events; and Inbox notifications for assignment, reassignment, comments, and overdue reminders. It intentionally stays bounded and does not depend on a background worker to advance recurring work.
 - Tables is a lightweight structured-data tool with named tables, safe column types, row editing, hide/reorder/filter/sort behavior, saved views, CSV import and export, row comments, row activity, and workspace-level RLS. It intentionally skips formulas, macros, large imports, and spreadsheet-style recalculation.
 - Notes is a lightweight personal and workspace note system with Markdown bodies, checklist items, labels, colors, pinning, archiving, reminders that surface in Hub notifications, Drive Lite attachments, restoreable soft deletion, bounded search, and workspace-aware visibility. It intentionally stays lighter than Docs and does not try to be a full document editor.
 
-The remaining modules are registered in `lib/modules/registry.ts` and remain disabled until their own implementation prompts are executed. Hub, Drive Lite, Docs, Notes, and Tables are the enabled workspace modules. The Hub and shell read that registry for desktop navigation, mobile navigation, the command palette, the module launcher, and enabled-module cards.
+The remaining modules are registered in `lib/modules/registry.ts` and remain disabled until their own implementation prompts are executed. Hub, Tasks, Drive Lite, Docs, Notes, and Tables are the enabled workspace modules. The Hub and shell read that registry for desktop navigation, mobile navigation, the command palette, the module launcher, and enabled-module cards.
 
 The Hub support migration is `supabase/migrations/20260715000001_hub.sql`. It adds bounded, user-scoped recent items, pinned modules, dashboard preferences, and notifications. New workspaces receive a small initial dashboard seed; existing workspaces can receive the same seed by running `supabase/seed.sql` again.
 
@@ -55,6 +56,17 @@ Notes is intentionally bounded so it stays fast and simple:
 - 30 checklist items max per note
 - one scheduled reminder row per note
 - bounded search and label pages, not cross-module joins
+
+## Tasks limits
+
+Tasks is intentionally bounded so it stays reliable without background workers:
+
+- 180 characters max for task titles
+- 12,000 characters max for task descriptions
+- bounded list, board, calendar, mine, overdue, and completed views
+- recurring tasks advance on explicit completion or a user-triggered refresh
+- personal tasks stay private to the current user, while workspace tasks obey workspace permissions
+- comments, attachments, labels, and dependencies stay scoped to the workspace and current task
 
 ## Registering a new module in the Hub
 
@@ -95,7 +107,7 @@ Run the SQL in this order using the Supabase SQL editor or the Supabase CLI:
 supabase db reset
 ```
 
-The migrations are in `supabase/migrations/20260715000000_identity_workspaces.sql`, `supabase/migrations/20260715000001_hub.sql`, `supabase/migrations/20260715000002_drive_lite.sql`, `supabase/migrations/20260715000003_docs.sql`, `supabase/migrations/20260715000004_tables.sql`, and `supabase/migrations/20260715000005_notes.sql`; seed data is in `supabase/seed.sql`. Run `npm run seed:drive` after the database migration when you want the sample file content in Storage.
+The migrations are in `supabase/migrations/20260715000000_identity_workspaces.sql`, `supabase/migrations/20260715000001_hub.sql`, `supabase/migrations/20260715000002_drive_lite.sql`, `supabase/migrations/20260715000003_docs.sql`, `supabase/migrations/20260715000004_tables.sql`, `supabase/migrations/20260715000005_notes.sql`, and `supabase/migrations/20260715000006_tasks.sql`; seed data is in `supabase/seed.sql`. Run `npm run seed:drive` after the database migration when you want the sample file content in Storage.
 
 For hosted Supabase, apply the migration and seed SQL through the project’s database workflow. Make sure email confirmation and password reset redirect URLs include:
 
